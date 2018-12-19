@@ -94,8 +94,8 @@ func getCordinates(client *http.Client, pincode string) (long, lat float64, err 
 								if len(cPoints) > 0 {
 									if val, ok := cPoints[0].(map[string]interface{}); ok {
 										if points, ok := val["coordinates"].([]interface{}); ok {
-											long = IfToF(points[0])
-											lat = IfToF(points[1])
+											long = FloatRound(IfToF(points[0]), 4)
+											lat = FloatRound(IfToF(points[1]), 4)
 										}
 									}
 								}

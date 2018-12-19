@@ -59,7 +59,7 @@ func getDistance(client *http.Client, sourceVal string, destVal string) (distanc
 								if len(val) > 0 {
 									for _, curVal := range val {
 										if dis, ok := curVal.(map[string]interface{}); ok {
-											distance = append(distance, IfToF(dis["travelDistance"]))
+											distance = append(distance, FloatRound(IfToF(dis["travelDistance"]), 4))
 										}
 									}
 								}
@@ -136,4 +136,13 @@ func IfToF(value interface{}) float64 {
 		floatVal, _ = strconv.ParseFloat(value.(string), 64)
 	}
 	return floatVal
+}
+
+//FloatRound : Float round off
+func FloatRound(v float64, decimals int) float64 {
+	var pow float64 = 1
+	for i := 0; i < decimals; i++ {
+		pow *= 10
+	}
+	return float64(int((v*pow)+0.5)) / pow
 }

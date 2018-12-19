@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	if dis, err := distance.GetPinDistanct("201301", []string{"743135", "110042"}); err == nil {
+	if dis, err := distance.GetPinDistanct("201301", []string{"743135"}); err == nil {
 		fmt.Println(dis)
 	}
 }

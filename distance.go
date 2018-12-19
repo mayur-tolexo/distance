@@ -84,28 +84,18 @@ func getCordinates(client *http.Client, pincode string) (long, lat float64, err 
 		if resp, err = client.Do(req); err == nil {
 			defer resp.Body.Close()
 			if bodyBytes, err = ioutil.ReadAll(resp.Body); err == nil {
-				var data map[string]interface{}
-				if err = jsoniter.Unmarshal(bodyBytes, &data); err == nil {
-					if set, exists := data["resourceSets"]; exists {
-						if setVal, ok := set.([]interface{}); ok {
-							if len(setVal) > 0 {
-								if val, ok := setVal[0].(map[string]interface{}); ok {
-									if resource, exists := val["resources"]; exists {
-										if rVal, ok := resource.([]interface{}); ok {
-											if len(rVal) > 0 {
-												if val, ok := rVal[0].(map[string]interface{}); ok {
-													if point, exists := val["point"]; exists {
-														if pVal, ok := point.(map[string]interface{}); ok {
-															if cord, exists := pVal["coordinates"]; exists {
-																if cVal, ok := cord.([]interface{}); ok {
-																	long = IfToF(cVal[0])
-																	lat = IfToF(cVal[1])
-																}
-															}
-														}
-													}
-												}
-											}
+				var mat Matrix
+				if err = jsoniter.Unmarshal(bodyBytes, &mat); err == nil {
+					if len(mat.Res) > 0 {
+						resSet := mat.Res[0]
+						if len(resSet.Res) > 0 {
+							resource := resSet.Res[0]
+							if cPoints, ok := resource["geocodePoints"].([]interface{}); ok {
+								if len(cPoints) > 0 {
+									if val, ok := cPoints[0].(map[string]interface{}); ok {
+										if points, ok := val["coordinates"].([]interface{}); ok {
+											long = IfToF(points[0])
+											lat = IfToF(points[1])
 										}
 									}
 								}

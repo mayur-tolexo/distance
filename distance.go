@@ -13,9 +13,11 @@ import (
 )
 
 //GetPinDistanct will return distance between pincodes
-func GetPinDistanct(source string, distination []string) (err error) {
+func GetPinDistanct(source string, distination []string) (distance []float64, err error) {
 
-	var long, lat float64
+	var (
+		long, lat float64
+	)
 	client := &http.Client{}
 	if long, lat, err = getCordinates(client, source); err == nil {
 		sourceVal := fmt.Sprintf("%v,%v", long, lat)
@@ -29,14 +31,14 @@ func GetPinDistanct(source string, distination []string) (err error) {
 		}
 		if err == nil {
 			destVal = strings.TrimSuffix(destVal, ";")
-			fmt.Println(sourceVal, destVal)
-			getDistance(client, sourceVal, destVal)
+			// fmt.Println(sourceVal, destVal)
+			distance, err = getDistance(client, sourceVal, destVal)
 		}
 	}
 	return
 }
 
-func getDistance(client *http.Client, sourceVal string, destVal string) (err error) {
+func getDistance(client *http.Client, sourceVal string, destVal string) (distance []float64, err error) {
 	var (
 		req       *http.Request
 		resp      *http.Response
@@ -47,7 +49,24 @@ func getDistance(client *http.Client, sourceVal string, destVal string) (err err
 		if resp, err = client.Do(req); err == nil {
 			defer resp.Body.Close()
 			if bodyBytes, err = ioutil.ReadAll(resp.Body); err == nil {
-				fmt.Println(string(bodyBytes))
+				var data Matrix
+				if err = jsoniter.Unmarshal(bodyBytes, &data); err == nil {
+					if len(data.Res) > 0 {
+						resp := data.Res[0]
+						if len(resp.Res) > 0 {
+							resource := resp.Res[0]
+							if val, ok := resource["results"].([]interface{}); ok {
+								if len(val) > 0 {
+									for _, curVal := range val {
+										if dis, ok := curVal.(map[string]interface{}); ok {
+											distance = append(distance, IfToF(dis["travelDistance"]))
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}

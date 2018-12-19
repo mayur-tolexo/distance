@@ -1,7 +1,13 @@
 package main
 
-import "github.com/mayur-tolexo/distance"
+import (
+	"fmt"
+
+	"github.com/mayur-tolexo/distance"
+)
 
 func main() {
-	distance.GetPinDistanct("201301", []string{"743135"})
+	if dis, err := distance.GetPinDistanct("201301", []string{"743135", "110042"}); err == nil {
+		fmt.Println(dis)
+	}
 }
